@@ -27,7 +27,7 @@ def extract_next_links(url, resp):
         return list()
     #NEED TO ADD: AVOID LARGE FILES
     #gets html info bs4 using lxml
-    html_info = BeautifulSoup(resp.raw_response.content, "lxml")
+    html_info = BeautifulSoup(resp.raw_response.content, "html.parser")
     helper_get_data(url, html_info)
     links = html_info.find_all("a")
     list_of_links = []
@@ -74,6 +74,7 @@ def printer_data():
     print(f"Longest page: {longest_page['url']} that has {longest_page['length']} words")
     print("Number of subdomains: ", len(num_of_each_subdomain))
     print("The top 50 words are: ", words_50[:50])
+    print("")
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -95,6 +96,12 @@ def is_valid(url):
                 break
         if not checker:
             return False
+        if '?' in url:
+            qry_param = parsed.query.lower()
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=']
+            for x in traps:
+                if x in qry_param:
+                    return False
         #add the checker for calendar and other things that may trap crawler
         directory_paths = parsed.path
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
