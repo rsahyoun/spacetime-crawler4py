@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 
 def scraper(url, resp):
@@ -27,8 +27,9 @@ def extract_next_links(url, resp):
         #checks if the href value even stores something
         if linkers:
             #get the raw basic link NEED TO DOOOOO
-            list_of_links.append(linkers)
-
+            combined_link = urljoin(url, linkers) #combine the last url with the next url
+            defragged_link = urldefrag(combined_link)[0] #returns tuple of the url and the fragment
+            list_of_links.append(defragged_link)
     return list_of_links
 
 def is_valid(url):
