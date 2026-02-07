@@ -98,10 +98,18 @@ def is_valid(url):
             return False
         if '?' in url:
             qry_param = parsed.query.lower()
-            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=']
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=']
             for x in traps:
                 if x in qry_param:
                     return False
+        path_checker = parsed.path.lower()
+        if '/day/' in path_checker or '/today/' in path_checker:
+            return False
+        if re.search(r'/\d{4}-\d{2}-\d{2}',path_checker):
+            return False
+        for bad in bad_path_names:
+            if bad in path_checker:
+                return False
         #add the checker for calendar and other things that may trap crawler
         directory_paths = parsed.path
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
