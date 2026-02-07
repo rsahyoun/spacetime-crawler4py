@@ -183,10 +183,14 @@ def is_valid(url):
                 if x in qry_param:
                     return False
         path_checker = parsed.path.lower()
+        if parsed.path.startswith(("/~eppstein/junkyard/", "/~eppstein/ca/", "/~eppstein/untetra/")):
+            return False
         if 'mailman' in parsed.netloc or 'mailman' in path_checker:
             if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
                 return False
         if '/day/' in path_checker or '/today/' in path_checker:
+            return False
+        if '/attachment/' in path_checker or '/raw-attachment/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
             return False
@@ -194,7 +198,9 @@ def is_valid(url):
             return False
         if re.search(r'/(sld\d+|node\d+\.html?$)', path_checker):
             return False
-        
+        namess = parsed.path.lower().split("/")[-1]
+        if re.fullmatch(r'[a-z]\d{3,}',namess):
+            return False
         if re.fullmatch(r'/\d+/?', path_checker):
             return False
         if '/events/category/' in path_checker:
