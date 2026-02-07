@@ -107,7 +107,7 @@ def extract_next_links(url, resp):
 def helper_get_data(url, html_info):
     norm_url = normalize_url(url)
     urls_scrapped.add(norm_url)
-    # urls_seen_including_bad.add(url)
+    urls_seen_including_bad.add(url)
     parsed = urlparse(url)
     sub_d = parsed.netloc
     if sub_d in num_of_each_subdomain:
@@ -115,6 +115,11 @@ def helper_get_data(url, html_info):
     else:
         num_of_each_subdomain[sub_d] = 1
     #get_words
+    text_content = html_info.get_text(strip=True)
+    alphaCar = sum(c.isalnum() for c in text_content)
+    ratio = alphaCar/len(text_content)
+    if ratio < 0.75:
+        return
     words = html_info.get_text().split()
     #count words
     len_of_words = len(words)
