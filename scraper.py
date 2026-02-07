@@ -178,7 +178,7 @@ def is_valid(url):
         if 'mailman' in parsed.netloc or 'mailman' in path_checker:
             if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
                 return False
-        if '/day/' in path_checker or '/today/' in path_checker or '':
+        if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
             return False
@@ -187,7 +187,7 @@ def is_valid(url):
         if re.search(r'/(sld\d+|node\d+\.html?$)', path_checker):
             return False
         
-        if re.fullmatch(r'/\d+', path_checker):
+        if re.fullmatch(r'/\d+/?', path_checker):
             return False
         if '/events/category/' in path_checker:
             if any(x in path_checker for x in ['/month', '/list']):
@@ -195,16 +195,26 @@ def is_valid(url):
         if 'gitlab.ics.uci.edu' in parsed.netloc:
             if '/-/' in parsed.path:
                 return False
+        if not re.search(r'[a-zA-Z]', path_checker):
+            return False
         if '/page/' in parsed.path:
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
                 page_val = int(page_num.group(1))
-                if page_val > 5:
+                if page_val > 2:
                     return False
         if 'tribe-events' in parsed.query:
             if 'paged=' in parsed.query:
                 return False
         if 'eventDisplay=' in parsed.query.lower():
+            return False
+        if url.startswith(('mailto:', 'tel:', 'javascript:')):
+            return False
+        if '/img_' in path_checker:
+            return False
+        if '@' in url:
+            return False
+        if '/event/' in path_checker:
             return False
         if 'doku.php' in parsed.path:
             if 'idx' in parse_qs(parsed.query):
@@ -218,7 +228,7 @@ def is_valid(url):
         #add the checker for calendar and other things that may trap crawler
         directory_paths = parsed.path
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
-        if directory_paths.count("/") > 15:
+        if directory_paths.count("/") > 7:
             return False
         if len(directory_paths) > 150:
             return False
