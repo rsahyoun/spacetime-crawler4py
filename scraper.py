@@ -156,6 +156,10 @@ def is_valid(url):
         if norm_url in urls_scrapped:
             return False
         bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
+        
+        # Block Eppstein traps (pix, junkyard, pubs - thousands of pages)
+        eppstein_traps = ['/~eppstein/pix/', '/~eppstein/junkyard/', '/~eppstein/pubs/', 
+                          'eppstein/pix/', 'eppstein/junkyard/', 'eppstein/pubs/']
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
         if norm_url in urls_seen_including_bad:
@@ -175,7 +179,7 @@ def is_valid(url):
             return False
         if '?' in url:
             qry_param = parsed.query.lower()
-            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share=', 'c=', 'n=', 'o='] #maybe fix the c n o and add page=
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share='] #maybe fix the c n o and add page=
             for x in traps:
                 if x in qry_param:
                     return False
@@ -183,7 +187,7 @@ def is_valid(url):
         if 'mailman' in parsed.netloc or 'mailman' in path_checker:
             if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
                 return False
-        if '/day/' in path_checker or '/today/' in path_checker or '':
+        if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
             return False
@@ -192,7 +196,7 @@ def is_valid(url):
         if re.search(r'/(sld\d+|node\d+\.html?$)', path_checker):
             return False
         
-        if re.fullmatch(r'/\d+', path_checker):
+        if re.fullmatch(r'/\d+/?', path_checker):
             return False
         if '/events/category/' in path_checker:
             if any(x in path_checker for x in ['/month', '/list']):
@@ -200,16 +204,28 @@ def is_valid(url):
         if 'gitlab.ics.uci.edu' in parsed.netloc:
             if '/-/' in parsed.path:
                 return False
+        if not re.search(r'[a-zA-Z]', path_checker):
+            return False
+        if '/pix/' in path_checker:
+            return False
         if '/page/' in parsed.path:
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
                 page_val = int(page_num.group(1))
-                if page_val > 5:
+                if page_val > 2:
                     return False
         if 'tribe-events' in parsed.query:
             if 'paged=' in parsed.query:
                 return False
         if 'eventDisplay=' in parsed.query.lower():
+            return False
+        if url.startswith(('mailto:', 'tel:', 'javascript:')):
+            return False
+        if '/img_' in path_checker:
+            return False
+        if '@' in url:
+            return False
+        if '/event/' in path_checker:
             return False
         if 'doku.php' in parsed.path:
             if 'idx' in parse_qs(parsed.query):
@@ -220,10 +236,16 @@ def is_valid(url):
         for bad in bad_path_names:
             if bad in path_checker:
                 return False
+        
+        # Block Eppstein's trap directories (pix, junkyard, pubs)
+        for trap in eppstein_traps:
+            if trap in path_checker or trap in url.lower():
+                return False
+        
         #add the checker for calendar and other things that may trap crawler
         directory_paths = parsed.path
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
-        if directory_paths.count("/") > 15:
+        if directory_paths.count("/") > 7:
             return False
         if len(directory_paths) > 150:
             return False
