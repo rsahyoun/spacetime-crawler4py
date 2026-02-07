@@ -25,6 +25,7 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     if resp.status != 200:
         return list()
+    #NEED TO ADD: AVOID LARGE FILES
     #gets html info bs4 using lxml
     html_info = BeautifulSoup(resp.raw_response.content, "lxml")
     helper_get_data(url, html_info)
