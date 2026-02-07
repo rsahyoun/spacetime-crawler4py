@@ -197,6 +197,8 @@ def is_valid(url):
                 return False
         if not re.search(r'[a-zA-Z]', path_checker):
             return False
+        if '/pix/' in path_checker:
+            return False
         if '/page/' in parsed.path:
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
