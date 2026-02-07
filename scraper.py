@@ -105,7 +105,8 @@ def extract_next_links(url, resp):
         return list()
 
 def helper_get_data(url, html_info):
-    # urls_scrapped.add(url)
+    norm_url = normalize_url(url)
+    urls_scrapped.add(norm_url)
     # urls_seen_including_bad.add(url)
     parsed = urlparse(url)
     sub_d = parsed.netloc
@@ -146,13 +147,12 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
-        normalize = normalize_url(url)
-        if normalize in urls_scrapped:
+        norm_url = normalize_url(url)
+        if norm_url in urls_scrapped:
             return False
         bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
-        norm_url = normalize_url(url)
         if norm_url in urls_seen_including_bad:
             return False
         else:
@@ -228,7 +228,7 @@ def is_valid(url):
                 if num >10:
                     return False
         #maybe come back and add more checking if we fail tests??
-        if re.match(
+        return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4|mpg|mpeg"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -236,10 +236,8 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1|scm|rkt|ss|py"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
-            return False
-        urls_scrapped.add(normalize)
-        return True
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+    
 
 
     except TypeError:
