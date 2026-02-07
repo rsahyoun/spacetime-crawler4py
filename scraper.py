@@ -1,10 +1,11 @@
 import re
-from urllib.parse import urlparse, urldefrag, urljoin
+from urllib.parse import urlparse, urldefrag, urljoin, parse_qs
 from bs4 import BeautifulSoup
 
 
 #GLOBAL DATA VARIABLES
 urls_scrapped = set()
+urls_seen_including_bad = set()
 num_of_each_subdomain = {}
 longest_page = {"url":"", "length":0}
 word_counter = {}
@@ -80,7 +81,7 @@ def extract_next_links(url, resp):
         
         # Check for meaningful text content
         text_content = html_info.get_text(strip=True)
-        if len(text_content) < 50:
+        if len(text_content) < 100:
             # print(f"[Low Text Content] Skipping: {url}")
             return list()
         
@@ -105,6 +106,7 @@ def extract_next_links(url, resp):
 
 def helper_get_data(url, html_info):
     # urls_scrapped.add(url)
+    # urls_seen_including_bad.add(url)
     parsed = urlparse(url)
     sub_d = parsed.netloc
     if sub_d in num_of_each_subdomain:
@@ -149,7 +151,12 @@ def is_valid(url):
             return False
         bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
-        parsed = urlparse(normalize)
+        parsed = urlparse(url)
+        norm_url = normalize_url(url)
+        if norm_url in urls_seen_including_bad:
+            return False
+        else:
+            urls_seen_including_bad.add(norm_url)
         if parsed.scheme not in set(["http", "https"]):
             return False
         #this part checks if the domain is ok netloc gets the main part of the url
@@ -197,7 +204,10 @@ def is_valid(url):
         if 'eventDisplay=' in parsed.query.lower():
             return False
         if 'doku.php' in parsed.path:
-            if parsed.query:
+            if 'idx' in parse_qs(parsed.query):
+                return False
+            po = parsed.path + parsed.query
+            if po.count(':') > 3:
                 return False
         for bad in bad_path_names:
             if bad in path_checker:
