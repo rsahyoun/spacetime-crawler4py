@@ -147,7 +147,7 @@ def is_valid(url):
     # There are already some conditions that return False.
 
     try:
-        bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
+        bad_path_names = ['/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/login'] #maybe change or add more if needed
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
         norm_url = normalize_url(url)
@@ -168,7 +168,7 @@ def is_valid(url):
             return False
         if '?' in url:
             qry_param = parsed.query.lower()
-            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share=', 'c=', 'n=', 'o='] #maybe fix the c n o and add page=
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share='] #maybe fix the c n o and add page=
             for x in traps:
                 if x in qry_param:
                     return False
