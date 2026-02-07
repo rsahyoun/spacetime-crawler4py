@@ -23,20 +23,30 @@ def is_valid(url):
     # There are already some conditions that return False.
 
     try:
+        bad_path_names = ["date", "calendar","year"] #maybe change or add more if needed
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        #this part checks if the domain is ok netloc gets the main part of the url
         if parsed.netloc not in domains_that_are_allowed:
             return False
         checker = False
+        #this checks if its act good like its not a fake page
         for x in domains_that_are_allowed:
             if parsed.netloc.endswith( "."+x ):
                 checker = True
                 break
         if not checker:
             return False
-
+        #add the checker for calendar and other things that may trap crawler
+        directory_paths = parsed.path
+        #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
+        if directory_paths.count("/") > 15:
+            return False
+        if len(directory_paths) > 250:
+            return False
+        #maybe come back and add more checking if we fail tests??
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
