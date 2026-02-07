@@ -59,7 +59,7 @@ def helper_get_data(url, html_info):
         longest_page["url"] = url
     #get longest url
     for word in words:
-        stripped_word = word.lower().strip(".,?!;:")
+        stripped_word = word.lower().strip(".,?!;:&|/{}[]#")
         if stripped_word not in stop_words:
             if stripped_word in word_counter:
                 word_counter[stripped_word] += 1
@@ -98,7 +98,7 @@ def is_valid(url):
             return False
         if '?' in url:
             qry_param = parsed.query.lower()
-            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date']
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share=', 'c=', 'n=', 'o='] #maybe fix the c n o and add page=
             for x in traps:
                 if x in qry_param:
                     return False
@@ -109,6 +109,16 @@ def is_valid(url):
             return False
         if re.search(r'/\d{4}[/-]\d{2}',path_checker):
             return False
+        if re.fullmatch(r'/\d+', path_checker):
+            return False
+        if '/events/category/' in path_checker:
+            if any(x in path_checker for x in ['/month', '/list'])
+        if '/page/' in parsed.path:
+            page_num = re.search(r'/page/(\d+)', parsed.path)
+            if page_num:
+                page_val = int(page_num.group(1))
+                if page_val > 5:
+                    return False
         for bad in bad_path_names:
             if bad in path_checker:
                 return False
@@ -117,7 +127,9 @@ def is_valid(url):
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
         if directory_paths.count("/") > 15:
             return False
-        if len(directory_paths) > 250:
+        if len(directory_paths) > 150:
+            return False
+        if 'wp-login.php' in path_checker:
             return False
         #maybe come back and add more checking if we fail tests??
         return not re.match(
