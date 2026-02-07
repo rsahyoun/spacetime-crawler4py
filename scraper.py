@@ -60,6 +60,8 @@ def helper_get_data(url, html_info):
     #get longest url
     for word in words:
         stripped_word = word.lower().strip(".,?!;:&|/{}[]#")
+        if not stripped_word:
+            continue
         if stripped_word not in stop_words:
             if stripped_word in word_counter:
                 word_counter[stripped_word] += 1
@@ -82,7 +84,7 @@ def is_valid(url):
     # There are already some conditions that return False.
 
     try:
-        bad_path_names = ["date", "calendar","year"] #maybe change or add more if needed
+        bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
@@ -103,6 +105,7 @@ def is_valid(url):
                 if x in qry_param:
                     return False
         path_checker = parsed.path.lower()
+
         if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
@@ -123,6 +126,9 @@ def is_valid(url):
                 page_val = int(page_num.group(1))
                 if page_val > 5:
                     return False
+        if 'doku.php' in parsed.path:
+            if parsed.query:
+                return False
         for bad in bad_path_names:
             if bad in path_checker:
                 return False
