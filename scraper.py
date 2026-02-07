@@ -2,6 +2,9 @@ import re
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 
+
+#GLOBAL DATA VARIABLES
+urls_scrapped = set()
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -20,18 +23,25 @@ def extract_next_links(url, resp):
         return list()
     #gets html info bs4 using lxml
     html_info = BeautifulSoup(resp.raw_response.content, "lxml")
+    helper_get_data(url, html_info)
     links = html_info.find_all("a")
     list_of_links = []
     for link in links:
         linkers = link.get("href")
         #checks if the href value even stores something
         if linkers:
-            #get the raw basic link NEED TO DOOOOO
+            #DATA COLLECTIONS
+
             combined_link = urljoin(url, linkers) #combine the last url with the next url
             defragged_link = urldefrag(combined_link)[0] #returns tuple of the url and the fragment
             list_of_links.append(defragged_link)
     return list_of_links
+def helper_get_data(url, html_info):
 
+    urls_scrapped.add(url)
+    #get text
+    #count words
+    #get longest url
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
