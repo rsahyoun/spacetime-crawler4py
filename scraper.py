@@ -26,23 +26,23 @@ def extract_next_links(url, resp):
     
     # Check status code - only process 200 OK responses
     if resp.status != 200:
-        if resp.status == 404:
-            print(f"[404 Not Found] Skipping: {url}")
-        elif resp.status == 403:
-            print(f"[403 Forbidden] Skipping: {url}")
-        elif resp.status >= 600:
-            print(f"[Cache Error {resp.status}] Skipping: {url} - {resp.error if resp.error else 'Unknown error'}")
-        else:
-            print(f"[Status {resp.status}] Skipping: {url}")
+        # if resp.status == 404:
+        #     # print(f"[404 Not Found] Skipping: {url}")
+        # elif resp.status == 403:
+        #     # print(f"[403 Forbidden] Skipping: {url}")
+        # elif resp.status >= 600:
+        #     # print(f"[Cache Error {resp.status}] Skipping: {url} - {resp.error if resp.error else 'Unknown error'}")
+        # else:
+        #     # print(f"[Status {resp.status}] Skipping: {url}")
         return list()
     
     # Check for valid response and content
     if not resp.raw_response:
-        print(f"[No Response] Skipping: {url}")
+        # print(f"[No Response] Skipping: {url}")
         return list()
     
     if not resp.raw_response.content:
-        print(f"[Empty Content] Skipping: {url}")
+        # print(f"[Empty Content] Skipping: {url}")
         return list()
     
     # Avoid very large files
@@ -51,12 +51,12 @@ def extract_next_links(url, resp):
     MIN_CONTENT_SIZE = 100  # 100 bytes
     
     if content_length > MAX_CONTENT_SIZE:
-        print(f"[Too Large] Skipping: {url} (Size: {content_length / (1024*1024):.2f}MB)")
+        # print(f"[Too Large] Skipping: {url} (Size: {content_length / (1024*1024):.2f}MB)")
         return list()
     
     # Avoid dead pages with minimal content
     if content_length < MIN_CONTENT_SIZE:
-        print(f"[Too Small] Skipping: {url} (Size: {content_length} bytes)")
+        # print(f"[Too Small] Skipping: {url} (Size: {content_length} bytes)")
         return list()
     
     try:
@@ -65,7 +65,7 @@ def extract_next_links(url, resp):
         # Check for meaningful text content
         text_content = html_info.get_text(strip=True)
         if len(text_content) < 50:
-            print(f"[Low Text Content] Skipping: {url}")
+            # print(f"[Low Text Content] Skipping: {url}")
             return list()
         
         # Collect analytics data
@@ -151,7 +151,8 @@ def is_valid(url):
                     return False
         path_checker = parsed.path.lower()
         if 'mailman' in parsed.netloc or 'mailman' in path_checker:
-            if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/'])
+            if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
+                return False
         if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
