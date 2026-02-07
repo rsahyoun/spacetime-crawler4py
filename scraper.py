@@ -105,9 +105,9 @@ def is_valid(url):
         path_checker = parsed.path.lower()
         if '/day/' in path_checker or '/today/' in path_checker:
             return False
-        if re.search(r'/\d{4}-\d{2}-\d{2}',path_checker):
+        if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
             return False
-        if re.search(r'/\d{4}-\d{2}',path_checker):
+        if re.search(r'/\d{4}[/-]\d{2}',path_checker):
             return False
         for bad in bad_path_names:
             if bad in path_checker:
