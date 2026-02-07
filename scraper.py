@@ -150,7 +150,8 @@ def is_valid(url):
                 if x in qry_param:
                     return False
         path_checker = parsed.path.lower()
-
+        if 'mailman' in parsed.netloc or 'mailman' in path_checker:
+            if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/'])
         if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
@@ -200,11 +201,11 @@ def is_valid(url):
         #maybe come back and add more checking if we fail tests??
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|mpg|mpeg"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|epub|dll|cnf|tgz|sha1|scm|rkt|ss|py"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
