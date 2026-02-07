@@ -64,8 +64,15 @@ def helper_get_data(url, html_info):
                 word_counter[stripped_word] += 1
             else:
                 word_counter[stripped_word] = 1
+    printer_data()
     #COUNT WORDS
 
+def printer_data():
+    words_50 = sorted(word_counter.items(), key=lambda x: x[1], reverse=True)
+    print("Number of unique pages: ", len(urls_scrapped))
+    print(f"Longest page: {longest_page['url']} that has {longest_page['length']} words")
+    print("Number of subdomains: ", len(num_of_each_subdomain))
+    print("The top 50 words are: ", words_50[:50])
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
