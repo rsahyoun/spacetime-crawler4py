@@ -29,12 +29,10 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         #this part checks if the domain is ok netloc gets the main part of the url
-        if parsed.netloc not in domains_that_are_allowed:
-            return False
         checker = False
-        #this checks if its act good like its not a fake page
+        # this checks if its act good like its not a fake page
         for x in domains_that_are_allowed:
-            if parsed.netloc.endswith( "."+x ):
+            if parsed.netloc  == x or parsed.netloc.endswith( "."+x ):
                 checker = True
                 break
         if not checker:
