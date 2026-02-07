@@ -98,7 +98,7 @@ def is_valid(url):
             return False
         if '?' in url:
             qry_param = parsed.query.lower()
-            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=']
+            traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date']
             for x in traps:
                 if x in qry_param:
                     return False
@@ -106,6 +106,8 @@ def is_valid(url):
         if '/day/' in path_checker or '/today/' in path_checker:
             return False
         if re.search(r'/\d{4}-\d{2}-\d{2}',path_checker):
+            return False
+        if re.search(r'/\d{4}-\d{2}',path_checker):
             return False
         for bad in bad_path_names:
             if bad in path_checker:
