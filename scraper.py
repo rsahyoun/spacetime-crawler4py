@@ -178,12 +178,15 @@ def is_valid(url):
         if 'mailman' in parsed.netloc or 'mailman' in path_checker:
             if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
                 return False
-        if '/day/' in path_checker or '/today/' in path_checker:
+        if '/day/' in path_checker or '/today/' in path_checker or '':
             return False
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
             return False
         if re.search(r'/\d{4}[/-]\d{2}',path_checker):
             return False
+        if re.search(r'/(sld\d+|node\d+\.html?$)', path_checker):
+            return False
+        
         if re.fullmatch(r'/\d+', path_checker):
             return False
         if '/events/category/' in path_checker:
@@ -237,9 +240,6 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1|scm|rkt|ss|py"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
-    
-
-
     except TypeError:
         print ("TypeError for ", parsed)
         raise
