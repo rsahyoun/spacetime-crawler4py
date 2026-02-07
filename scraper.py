@@ -26,6 +26,7 @@ def extract_next_links(url, resp):
         linkers = link.get("href")
         #checks if the href value even stores something
         if linkers:
+            #get the raw basic link NEED TO DOOOOO
             list_of_links.append(linkers)
 
     return list_of_links
