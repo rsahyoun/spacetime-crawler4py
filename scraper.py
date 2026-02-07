@@ -114,6 +114,9 @@ def is_valid(url):
         if '/events/category/' in path_checker:
             if any(x in path_checker for x in ['/month', '/list']):
                 return False
+        if 'gitlab.ics.uci.edu' in parsed.netloc:
+            if '/-/' in parsed.path:
+                return False
         if '/page/' in parsed.path:
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
