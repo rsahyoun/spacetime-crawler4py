@@ -151,6 +151,10 @@ def is_valid(url):
         if norm_url in urls_scrapped:
             return False
         bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
+        
+        # Block Eppstein traps (pix, junkyard, pubs - thousands of pages)
+        eppstein_traps = ['/~eppstein/pix/', '/~eppstein/junkyard/', '/~eppstein/pubs/', 
+                          'eppstein/pix/', 'eppstein/junkyard/', 'eppstein/pubs/']
         domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
         if norm_url in urls_seen_including_bad:
@@ -215,6 +219,12 @@ def is_valid(url):
         for bad in bad_path_names:
             if bad in path_checker:
                 return False
+        
+        # Block Eppstein's trap directories (pix, junkyard, pubs)
+        for trap in eppstein_traps:
+            if trap in path_checker or trap in url.lower():
+                return False
+        
         #add the checker for calendar and other things that may trap crawler
         directory_paths = parsed.path
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
