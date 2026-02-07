@@ -67,7 +67,7 @@ def helper_get_data(url, html_info):
                 word_counter[stripped_word] += 1
             else:
                 word_counter[stripped_word] = 1
-    printer_data()
+    # printer_data()
     #COUNT WORDS
 
 def printer_data():
@@ -126,6 +126,11 @@ def is_valid(url):
                 page_val = int(page_num.group(1))
                 if page_val > 5:
                     return False
+        if 'tribe-events' in parsed.query:
+            if 'paged=' in parsed.query:
+                return False
+        if 'eventDisplay=' in parsed.query.lower():
+            return False
         if 'doku.php' in parsed.path:
             if parsed.query:
                 return False
@@ -141,6 +146,12 @@ def is_valid(url):
             return False
         if 'wp-login.php' in path_checker:
             return False
+        if re.search(r'/publications/r\d+[a-zA-z]?\.html$', parsed.path):
+            get_path = re.search(r'r(\d+)', parsed.path)
+            if get_path:
+                num = int(get_path.group(1))
+                if num >10:
+                    return False
         #maybe come back and add more checking if we fail tests??
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
