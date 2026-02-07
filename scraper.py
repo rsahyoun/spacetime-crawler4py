@@ -9,6 +9,7 @@ num_of_each_subdomain = {}
 longest_page = {"url":"", "length":0}
 word_counter = {}
 stop_words = ['a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't", 'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", "they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', "what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves']
+def scraper(url, resp):
 
 def normalize_url(url):
     # fragmantise url and gets a parsed url
@@ -80,7 +81,7 @@ def extract_next_links(url, resp):
         
         # Check for meaningful text content
         text_content = html_info.get_text(strip=True)
-        if len(text_content) < 50:
+        if len(text_content) < 100:
             # print(f"[Low Text Content] Skipping: {url}")
             return list()
         
@@ -195,7 +196,10 @@ def is_valid(url):
         if 'eventDisplay=' in parsed.query.lower():
             return False
         if 'doku.php' in parsed.path:
-            if parsed.query:
+            if 'idx' in parse_qs(parsed.query):
+                return False
+            po = parsed.path + parsed.query
+            if po.count(':') > 3:
                 return False
         for bad in bad_path_names:
             if bad in path_checker:
