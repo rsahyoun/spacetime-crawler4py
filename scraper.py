@@ -23,24 +23,69 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    
+    # Check status code - only process 200 OK responses
     if resp.status != 200:
+        if resp.status == 404:
+            print(f"[404 Not Found] Skipping: {url}")
+        elif resp.status == 403:
+            print(f"[403 Forbidden] Skipping: {url}")
+        elif resp.status >= 600:
+            print(f"[Cache Error {resp.status}] Skipping: {url} - {resp.error if resp.error else 'Unknown error'}")
+        else:
+            print(f"[Status {resp.status}] Skipping: {url}")
         return list()
-    #NEED TO ADD: AVOID LARGE FILES
-    #gets html info bs4 using lxml
-    html_info = BeautifulSoup(resp.raw_response.content, "html.parser")
-    helper_get_data(url, html_info)
-    links = html_info.find_all("a")
-    list_of_links = []
-    for link in links:
-        linkers = link.get("href")
-        #checks if the href value even stores something
-        if linkers:
-            #DATA COLLECTIONS
-            # helper_get_data(linkers, html_info)
-            combined_link = urljoin(url, linkers) #combine the last url with the next url
-            defragged_link = urldefrag(combined_link)[0] #returns tuple of the url and the fragment
-            list_of_links.append(defragged_link)
-    return list_of_links
+    
+    # Check for valid response and content
+    if not resp.raw_response:
+        print(f"[No Response] Skipping: {url}")
+        return list()
+    
+    if not resp.raw_response.content:
+        print(f"[Empty Content] Skipping: {url}")
+        return list()
+    
+    # Avoid very large files
+    content_length = len(resp.raw_response.content)
+    MAX_CONTENT_SIZE = 5 * 1024 * 1024  # 5MB
+    MIN_CONTENT_SIZE = 100  # 100 bytes
+    
+    if content_length > MAX_CONTENT_SIZE:
+        print(f"[Too Large] Skipping: {url} (Size: {content_length / (1024*1024):.2f}MB)")
+        return list()
+    
+    # Avoid dead pages with minimal content
+    if content_length < MIN_CONTENT_SIZE:
+        print(f"[Too Small] Skipping: {url} (Size: {content_length} bytes)")
+        return list()
+    
+    try:
+        html_info = BeautifulSoup(resp.raw_response.content, "html.parser")
+        
+        # Check for meaningful text content
+        text_content = html_info.get_text(strip=True)
+        if len(text_content) < 50:
+            print(f"[Low Text Content] Skipping: {url}")
+            return list()
+        
+        # Collect analytics data
+        helper_get_data(url, html_info)
+        
+        # Extract all links from the page
+        links = html_info.find_all("a")
+        list_of_links = []
+        for link in links:
+            linkers = link.get("href")
+            if linkers:
+                combined_link = urljoin(url, linkers)
+                defragged_link = urldefrag(combined_link)[0]
+                list_of_links.append(defragged_link)
+        
+        return list_of_links
+        
+    except Exception as e:
+        print(f"[Parse Error] Failed to parse {url}: {e}")
+        return list()
 
 def helper_get_data(url, html_info):
     urls_scrapped.add(url)
