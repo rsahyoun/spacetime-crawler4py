@@ -112,7 +112,8 @@ def is_valid(url):
         if re.fullmatch(r'/\d+', path_checker):
             return False
         if '/events/category/' in path_checker:
-            if any(x in path_checker for x in ['/month', '/list'])
+            if any(x in path_checker for x in ['/month', '/list']):
+                return False
         if '/page/' in parsed.path:
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
