@@ -222,6 +222,8 @@ def is_valid(url):
             return False
         if '/img_' in path_checker:
             return False
+        if '/tag/' in path_checker:
+            return False
         if '@' in url:
             return False
         if '/event/' in path_checker:
