@@ -16,6 +16,8 @@ def main(config_file, restart):
     try:
         crawler.start()
     except KeyboardInterrupt:
+        print("Crawl interrupted by user")
+    finally:
         scraper.printer_data()
 
 
