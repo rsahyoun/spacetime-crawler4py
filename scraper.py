@@ -124,7 +124,7 @@ def helper_get_data(url, html_info):
         longest_page["url"] = url
     #get longest url
     for word in words:
-        stripped_word = word.lower().strip(".,?!;:&|/{}[]#")
+        stripped_word = word.lower().strip(".,?!;:&|/{}[]#<>")
         if not stripped_word:
             continue
         if stripped_word not in stop_words:
