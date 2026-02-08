@@ -164,118 +164,101 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         norm_url = normalize_url(url)
-        if norm_url in urls_scrapped:
-            return False
-        bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login'] #maybe change or add more if needed
-        
-        # Block Eppstein traps (pix, junkyard, pubs - thousands of pages)
-        eppstein_traps = ['/~eppstein/pix/', '/~eppstein/junkyard/', '/~eppstein/pubs/', 
-                          'eppstein/pix/', 'eppstein/junkyard/', 'eppstein/pubs/']
-        domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         parsed = urlparse(url)
-        if norm_url in urls_seen_including_bad:
+        path_lower = parsed.path.lower()
+        qry_lower = parsed.query.lower()
+
+        if norm_url in urls_scrapped or norm_url in urls_seen_including_bad:
             return False
         else:
             urls_seen_including_bad.add(norm_url)
+
         if parsed.scheme not in set(["http", "https"]):
             return False
-        #this part checks if the domain is ok netloc gets the main part of the url
+
+        if url.startswith(('mailto:', 'tel:', 'javascript:')):
+            return False
         checker = False
-        # this checks if its act good like its not a fake page
+        domains_that_are_allowed = set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"])
         for x in domains_that_are_allowed:
             if parsed.netloc  == x or parsed.netloc.endswith( "."+x ):
                 checker = True
                 break
         if not checker:
             return False
-        if '?' in url:
-            qry_param = parsed.query.lower()
+
+        bad_path_names = ["date", "calendar","year", '/svn/', 'git/', '/wiki/group', '/wiki/public', 'wiki/fr', '/data', '/login','/pix/','/tag/', '/event/', '/img_/',
+                        '/today/', '/day', '/attachment/', '/raw-attachment/', 'wp-login.php'] #maybe change or add more if needed
+        if any(bad in path_lower for bad in bad_path_names):
+            return False
+        # Block Eppstein traps (pix, junkyard, pubs - thousands of pages)
+        eppstein_traps = ['/~eppstein/pix/', '/~eppstein/junkyard/', '/~eppstein/pubs/', 
+                          'eppstein/pix/', 'eppstein/junkyard/', 'eppstein/pubs/', '/~eppstein/ca/', '/~eppstein/untetra/']
+       
+        if any(trap in path_lower or trap in url.lower() for trap in eppstein_traps):
+            return False
+        
+        if parsed.query:
             traps = ['tab_details', 'tab_files', 'do=media', 'do=edit', 'image=', 'ical=', 'outlook-ical=', 'eventDisplay=','tribe-bar-date','subpage=','share='] #maybe fix the c n o and add page=
-            for x in traps:
-                if x in qry_param:
-                    return False
-        path_checker = parsed.path.lower()
-        if parsed.path.startswith(("/~eppstein/junkyard/", "/~eppstein/ca/", "/~eppstein/untetra/")):
-            return False
-        if 'mailman' in parsed.netloc or 'mailman' in path_checker:
-            if any(x in path_checker for x in ['/admin/', '/private/', '/pipermail/']):
+            
+            if any(t in qry_lower for t in traps):
                 return False
-        if '/day/' in path_checker or '/today/' in path_checker:
+            if 'tribe-events' in qry_lower and 'paged=' in qry_lower:
+                return False
+            if 'eventdisplay=' in qry_lower:
+                return False
+
+        if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_lower):
             return False
-        if '/attachment/' in path_checker or '/raw-attachment/' in path_checker:
+        if re.search(r'/\d{4}[/-]\d{2}',path_lower):
             return False
-        if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_checker):
-            return False
-        if re.search(r'/\d{4}[/-]\d{2}',path_checker):
-            return False
-        if re.search(r'/(sld\d+|node\d+\.html?$)', path_checker):
+        if re.search(r'/(sld\d+|node\d+\.html?$)', path_lower):
             return False
         namess = parsed.path.lower().split("/")[-1]
         if re.fullmatch(r'[a-z]\d{3,}',namess):
             return False
-        if re.fullmatch(r'/\d+/?', path_checker):
+        if re.fullmatch(r'/\d+/?', path_lower):
             return False
-        if '/events/category/' in path_checker:
-            if any(x in path_checker for x in ['/month', '/list']):
+        if 'mailman' in parsed.netloc or 'mailman' in path_lower:
+            if any(x in path_lower for x in ['/admin/', '/private/', '/pipermail/']):
                 return False
+        if '@' in url:
+            return False 
         if 'gitlab.ics.uci.edu' in parsed.netloc:
             if '/-/' in parsed.path:
                 return False
-        if not re.search(r'[a-zA-Z]', path_checker):
-            return False
-        if '/pix/' in path_checker:
-            return False
-        if '/page/' in parsed.path:
-            page_num = re.search(r'/page/(\d+)', parsed.path)
-            if page_num:
-                page_val = int(page_num.group(1))
-                if page_val > 2:
-                    return False
-        if 'tribe-events' in parsed.query:
-            if 'paged=' in parsed.query:
-                return False
-        if 'eventDisplay=' in parsed.query.lower():
-            return False
-        if url.startswith(('mailto:', 'tel:', 'javascript:')):
-            return False
-        if '/img_' in path_checker:
-            return False
-        if '/tag/' in path_checker:
-            return False
-        if '@' in url:
-            return False
-        if '/event/' in path_checker:
-            return False
         if 'doku.php' in parsed.path:
             if 'idx' in parse_qs(parsed.query):
                 return False
             po = parsed.path + parsed.query
             if po.count(':') > 3:
                 return False
-        for bad in bad_path_names:
-            if bad in path_checker:
+        if '/page/' in parsed.path:
+            page_num = re.search(r'/page/(\d+)', parsed.path)
+            if page_num:
+                page_val = int(page_num.group(1))
+                if page_val > 2:
+                    return False
+        if '/events/category/' in path_lower:
+            if any(x in path_lower for x in ['/month', '/list']):
                 return False
-        
-        # Block Eppstein's trap directories (pix, junkyard, pubs)
-        for trap in eppstein_traps:
-            if trap in path_checker or trap in url.lower():
-                return False
-        
-        #add the checker for calendar and other things that may trap crawler
-        directory_paths = parsed.path
-        #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
-        if directory_paths.count("/") > 7:
-            return False
-        if len(directory_paths) > 150:
-            return False
-        if 'wp-login.php' in path_checker:
-            return False
         if re.search(r'/publications/r\d+[a-zA-z]?\.html$', parsed.path):
             get_path = re.search(r'r(\d+)', parsed.path)
             if get_path:
                 num = int(get_path.group(1))
                 if num >10:
                     return False
+        if not re.search(r'[a-zA-Z]', path_lower):
+            return False
+
+           
+        #add the checker for calendar and other things that may trap crawler
+        #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
+
+        if len(parsed.path) > 150 or parsed.path.count("/") > 7:
+            return False
+  
+        
         #maybe come back and add more checking if we fail tests??
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
