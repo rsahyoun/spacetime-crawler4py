@@ -14,18 +14,13 @@ stop_words = ['a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', '
 def normalize_url(url):
     # fragmantise url and gets a parsed url
     url, fragment = urldefrag(url)
-    #parsed = urlparse(url)
+    parsed = urlparse(url)
     # get parts of url and makes it lowercase
-    #scheme = parsed.scheme.lower()
-    #netloc = parsed.netloc.lower()
-    #path = parsed.path or "/"
-
-    #if path.endswith("/index.html"):
-        #path = path[:-10]
-    #if path != "/" and path.endswith("/"):
-        #path = path[:-1]
-     #return scheme + "://" + netloc + path
-    return url.lower()
+    scheme = parsed.scheme.lower()
+    netloc = parsed.netloc.lower()
+    path = parsed.path or "/"
+    return scheme + "://" + netloc + path
+    #return url.lower()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
