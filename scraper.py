@@ -115,11 +115,6 @@ def helper_get_data(url, html_info):
     else:
         num_of_each_subdomain[sub_d] = 1
     #get_words
-    text_content = html_info.get_text(strip=True)
-    alphaCar = sum(c.isalnum() for c in text_content)
-    ratio = alphaCar/len(text_content)
-    if ratio < 0.75:
-        return
     words = html_info.get_text().split()
     #count words
     len_of_words = len(words)
@@ -132,6 +127,10 @@ def helper_get_data(url, html_info):
         if not stripped_word:
             continue
         if stripped_word not in stop_words:
+            alphaCar = sum(c.isalnum() for c in stripped_word)
+            ratio = alphaCar/len(stripped_word)
+            if (ratio < 0.75):
+                continue
             if stripped_word in word_counter:
                 word_counter[stripped_word] += 1
             else:
