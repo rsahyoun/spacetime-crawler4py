@@ -14,17 +14,18 @@ stop_words = ['a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', '
 def normalize_url(url):
     # fragmantise url and gets a parsed url
     url, fragment = urldefrag(url)
-    parsed = urlparse(url)
+    #parsed = urlparse(url)
     # get parts of url and makes it lowercase
-    scheme = parsed.scheme.lower()
-    netloc = parsed.netloc.lower()
-    path = parsed.path or "/"
+    #scheme = parsed.scheme.lower()
+    #netloc = parsed.netloc.lower()
+    #path = parsed.path or "/"
 
-    if path.endswith("/index.html"):
-        path = path[:-10]
-    if path != "/" and path.endswith("/"):
-        path = path[:-1]
-    return scheme + "://" + netloc + path
+    #if path.endswith("/index.html"):
+        #path = path[:-10]
+    #if path != "/" and path.endswith("/"):
+        #path = path[:-1]
+     #return scheme + "://" + netloc + path
+    return url.lower()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -140,11 +141,27 @@ def helper_get_data(url, html_info):
 
 def printer_data():
     words_50 = sorted(word_counter.items(), key=lambda x: x[1], reverse=True)
+    subs = sorted(num_of_each_subdomain.items())
     print("Number of unique pages: ", len(urls_scrapped))
     print(f"Longest page: {longest_page['url']} that has {longest_page['length']} words")
     print("Number of subdomains: ", len(num_of_each_subdomain))
+    print("The subdomains are: ", subs)
     print("The top 50 words are: ", words_50[:50])
     print("")
+    with open("crawler_report.txt", 'w') as f:
+        f.write("Number of unique pages: " + str(len(urls_scrapped)) + '\n')
+        f.write(f"Longest page: {longest_page['url']} that has {longest_page['length']} words\n")
+        f.write("Number of subdomains: " + str(len(num_of_each_subdomain)) + '\n')
+        f.write("The subdomains are:\n")
+        for sub, count in subs:
+            f.write(sub  + ", "  + str(count) + '\n')
+        f.write('\n')
+        f.write("The top 50 words are:\n")
+        for i in range(min(50, len(words_50))):
+            word, count = words_50[i]
+            f.write(word  + ", "  + str(count))
+            f.write('\n')
+    print("report saved")
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
