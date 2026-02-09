@@ -105,7 +105,7 @@ def helper_get_data(url, html_info):
     urls_scrapped.add(norm_url)
     urls_seen_including_bad.add(url)
     parsed = urlparse(url)
-    sub_d = parsed.netloc
+    sub_d = parsed.netloc.lower()
     if sub_d in num_of_each_subdomain:
         num_of_each_subdomain[sub_d] += 1
     else:
@@ -207,7 +207,7 @@ def is_valid(url):
                 return False
             if 'eventdisplay=' in qry_lower:
                 return False
-
+        #CHANGE MAYBE DONT BAN ALL CALENDAR DATES? MAYBE
         if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_lower):
             return False
         if re.search(r'/\d{4}[/-]\d{2}',path_lower):
@@ -237,7 +237,7 @@ def is_valid(url):
             page_num = re.search(r'/page/(\d+)', parsed.path)
             if page_num:
                 page_val = int(page_num.group(1))
-                if page_val > 2:
+                if page_val > 10:
                     return False
         if '/events/category/' in path_lower:
             if any(x in path_lower for x in ['/month', '/list']):
@@ -255,7 +255,7 @@ def is_valid(url):
         #add the checker for calendar and other things that may trap crawler
         #shouldnt be paths w a/b/c/a/s/d.com too MANYYY
 
-        if len(parsed.path) > 150 or parsed.path.count("/") > 7:
+        if len(parsed.path) > 200 or parsed.path.count("/") > 10:
             return False
   
         
