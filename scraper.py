@@ -122,15 +122,24 @@ def helper_get_data(url, html_info):
         stripped_word = word.lower().strip(".,?!;:&|/{}[]#<>")
         if not stripped_word:
             continue
-        if stripped_word not in stop_words:
-            alphaCar = sum(c.isalnum() for c in stripped_word)
-            ratio = alphaCar/len(stripped_word)
-            if (ratio < 0.75):
-                continue
-            if stripped_word in word_counter:
-                word_counter[stripped_word] += 1
-            else:
-                word_counter[stripped_word] = 1
+        if stripped_word.isdigit():
+            continue
+        if len(stripped_word) < 2:
+            continue
+        if stripped_word in stop_words:
+            continue
+        if stripped_word == "markellekelly":
+            continue
+        alphaCar = sum(c.isalnum() for c in stripped_word)
+        ratio = alphaCar/len(stripped_word)
+        if (ratio < 0.75):
+            continue
+        if len(stripped_word) > 30:
+            continue
+        if stripped_word in word_counter:
+            word_counter[stripped_word] += 1
+        else:
+            word_counter[stripped_word] = 1
     # printer_data()
     #COUNT WORDS
 
