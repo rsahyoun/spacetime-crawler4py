@@ -216,8 +216,8 @@ def is_valid(url):
                 return False
             if 'eventdisplay=' in qry_lower:
                 return False
-        #CHANGE MAYBE DONT BAN ALL CALENDAR DATES? MAYBE
-        if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}',path_lower):
+        #CHANGE MAYBE DONT BAN ALL CALENDAR DATES? MAYBE 
+        if re.search(r'/\d{4}[-/]\d{2}[/-]\d{2}/?$',path_lower):
             return False
         if re.search(r'/\d{4}[/-]\d{2}',path_lower):
             return False
@@ -269,6 +269,7 @@ def is_valid(url):
   
         
         #maybe come back and add more checking if we fail tests??
+        #banned mpg and mepg that were being caught and other items
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4|mpg|mpeg"
